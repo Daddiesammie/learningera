@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-r from-brand-900 to-brand-700 text-white">
+    <div class="container mx-auto px-4 py-16">
+        <div class="max-w-3xl">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4" data-aos="fade-up">
+                Elevate Your Sales Career
+            </h1>
+            <p class="text-xl text-gray-200 mb-8" data-aos="fade-up" data-aos-delay="100">
+                Access premium courses designed to transform you into a sales expert
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-12">
+    <!-- Search and Filter Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 -mt-24 relative z-10" data-aos="fade-up">
+        <form method="get" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1 relative">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="text" 
+                       name="search"
+                       value="{{ search_query }}"
+                       placeholder="Search courses..." 
+                       class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-700 focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" 
+                        class="btn-primary">
+                    <i class="fas fa-search mr-2"></i>Search
+                </button>
+                {% if search_query %}
+                    <a href="{% url 'courses:course_list' %}" 
+                       class="btn-secondary">
+                        <i class="fas fa-times mr-2"></i>Clear
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Course Categories -->
+    <div class="flex flex-wrap gap-4 mt-12 mb-8" data-aos="fade-up">
+        <button class="px-6 py-2 rounded-full bg-brand-500 text-white">All Courses</button>
+        <button class="px-6 py-2 rounded-full border border-gray-200 dark:border-gray-700 hover:border-brand-500 transition-colors">Sales</button>
+        <button class="px-6 py-2 rounded-full border border-gray-200 dark:border-gray-700 hover:border-brand-500 transition-colors">Marketing</button>
+        <button class="px-6 py-2 rounded-full border border-gray-200 dark:border-gray-700 hover:border-brand-500 transition-colors">Leadership</button>
+    </div>
+
+<!-- Course Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {% for course in courses %}
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" 
+         data-aos="fade-up" 
+         data-aos-delay="{{ forloop.counter0|divisibleby:3|yesno:'0,50,100' }}">
+            <!-- Course Image -->
+            <div class="relative h-48 overflow-hidden">
+                <img src="{{ course.course_image.url|default:'https://via.placeholder.com/400x300' }}" 
+                alt="{{ course.title }}"
+                class="w-full h-full object-cover">
+
+                {% if course.is_published %}
+                <span class="absolute top-4 right-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                    Active
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="p-6">
+                <!-- Course Title -->
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-3">{{ course.title }}</h2>
+                
+                <!-- Course Description -->
+                <p class="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                    {{ course.description|truncatewords:20 }}
+                </p>
+                
+                <!-- Course Meta -->
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-clock text-brand-500 mr-2"></i>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ course.duration }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-user-graduate text-brand-500 mr-2"></i>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ course.students_count }} students</span>
+                    </div>
+                </div>
+                
+                <!-- Price and Action -->
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <span class="text-2xl font-bold text-brand-500">${{ course.price }}</span>
+                    <a href="{% url 'courses:course_detail' course.slug %}" 
+                       class="btn-primary">
+                        View Details
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full flex flex-col items-center justify-center py-16">
+            <i class="fas fa-book-open text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <p class="text-gray-600 dark:text-gray-400 text-lg">No courses available at the moment.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="mt-12 flex justify-center" data-aos="fade-up">
+        <nav class="flex items-center gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" 
+               class="btn-secondary">
+                <i class="fas fa-chevron-left mr-2"></i>Previous
+            </a>
+            {% endif %}
+
+            <span class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" 
+               class="btn-secondary">
+                Next<i class="fas fa-chevron-right ml-2"></i>
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

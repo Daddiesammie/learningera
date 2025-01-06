@@ -1,0 +1,17 @@
+asgiref==3.8.1
+certifi==2024.12.14
+charset-normalizer==3.4.1
+crypto==1.4.1
+Django==5.1.4
+django-ckeditor-5==0.2.15
+Flutterwave==1.0.7
+idna==3.10
+Naked==0.1.32
+pillow==11.1.0
+pycrypto==2.6.1
+pycryptodome==3.21.0
+PyYAML==6.0.2
+requests==2.32.3
+shellescape==3.8.1
+sqlparse==0.5.3
+urllib3==2.3.0

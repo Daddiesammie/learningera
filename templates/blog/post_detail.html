@@ -1,0 +1,380 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <article class="max-w-4xl mx-auto">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-8" aria-label="Breadcrumb" data-aos="fade-up" data-aos-duration="600">
+            <ol class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                <li><a href="{% url 'blog:post_list' %}" class="hover:text-brand-500">Blog</a></li>
+                <li class="flex items-center space-x-2">
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span>{{ post.title|truncatechars:40 }}</span>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden" data-aos="fade-up" data-aos-duration="600">
+            {% if post.featured_image %}
+            <div class="relative h-96">
+                <img src="{{ post.featured_image.url }}" 
+                     alt="{{ post.title }}" 
+                     class="w-full h-full object-cover">
+                {% if post.category %}
+                <span class="absolute top-4 right-4 bg-brand-500 text-white text-sm font-semibold px-4 py-2 rounded-full">
+                    {{ post.category }}
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <div class="p-8">
+                <h1 class="text-3xl md:text-4xl font-bold mb-4 text-gray-800 dark:text-white">{{ post.title }}</h1>
+                
+                <!-- Author Info -->
+                <div class="flex items-center mb-8">
+                    {% if post.author.profile_image %}
+                    <img src="{{ post.author.profile_image.url }}" 
+                         alt="{{ post.author.username }}" 
+                         class="w-12 h-12 rounded-full object-cover">
+                    {% else %}
+                    <div class="w-12 h-12 rounded-full bg-brand-100 dark:bg-brand-900 flex items-center justify-center">
+                        <span class="text-brand-600 dark:text-brand-400 font-semibold text-xl">
+                            {{ post.author.username|make_list|first|upper }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    <div class="ml-4">
+                        <div class="text-gray-800 dark:text-white font-medium">{{ post.author.username }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                            <span>{{ post.created_at|date:"F d, Y" }}</span>
+                            <span class="mx-2">•</span>
+                            <span>{{ post.read_time }} min read</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Post Content -->
+                <div class="prose max-w-none dark:prose-invert mb-12">
+                    {{ post.content|safe }}
+                </div>
+                
+                <!-- Comments Section -->
+                <div class="mt-12 border-t dark:border-gray-700 pt-8" id="comments-section">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center">
+                        <i class="fas fa-comments mr-3 text-brand-500"></i>
+                        Comments ({{ comments.count }})
+                    </h2>
+                    
+                    {% if user.is_authenticated %}
+                    <form id="comment-form" class="mb-8 space-y-4">
+                        {% csrf_token %}
+                        <div class="relative">
+                            <textarea name="content" 
+                                      class="w-full p-4 border dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-brand-500 dark:bg-gray-700 dark:text-white"
+                                      placeholder="Share your thoughts..."
+                                      rows="4"></textarea>
+                            <div class="absolute bottom-2 right-2">
+                                <button type="submit" 
+                                        class="bg-brand-500 text-white px-6 py-2 rounded-lg hover:bg-brand-600 transition-colors duration-200 flex items-center">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    Post Comment
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 text-center">
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">Please log in to join the discussion</p>
+                        <a href="{% url 'login' %}" 
+                           class="inline-flex items-center text-brand-500 hover:text-brand-600 font-medium">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Log In
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Comments List -->
+                    <div id="comments-list" class="space-y-6">
+                        {% for comment in comments %}
+                        <div class="comment-container" id="comment-{{ comment.id }}">
+                            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center">
+                                        {% if comment.user.profile_image %}
+                                        <img src="{{ comment.user.profile_image.url }}" 
+                                             alt="{{ comment.user.username }}" 
+                                             class="w-10 h-10 rounded-full object-cover">
+                                        {% else %}
+                                        <div class="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900 flex items-center justify-center">
+                                            <span class="text-brand-600 dark:text-brand-400 font-semibold">
+                                                {{ comment.user.username|make_list|first|upper }}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                        <div class="ml-3">
+                                            <div class="font-medium text-gray-800 dark:text-white">
+                                                {{ comment.user.username }}
+                                            </div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                {{ comment.created_at|date:"F d, Y H:i" }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-700 dark:text-gray-300">{{ comment.content }}</p>
+                                
+                                {% if user.is_authenticated %}
+                                <div class="mt-4 flex items-center space-x-4">
+                                    <button onclick="showReplyForm({{ comment.id }})" 
+                                            class="text-brand-500 text-sm hover:text-brand-600 transition-colors duration-200 flex items-center">
+                                        <i class="fas fa-reply mr-2"></i>
+                                        Reply
+                                    </button>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Replies -->
+                                <div class="replies-container mt-4 space-y-3 ml-6 pl-6 border-l-2 border-gray-200 dark:border-gray-600">
+                                    {% for reply in comment.replies.all %}
+                                    <div class="reply bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center">
+                                                {% if reply.user.profile_image %}
+                                                <img src="{{ reply.user.profile_image.url }}" 
+                                                     alt="{{ reply.user.username }}" 
+                                                     class="w-8 h-8 rounded-full object-cover">
+                                                {% else %}
+                                                <div class="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900 flex items-center justify-center">
+                                                    <span class="text-brand-600 dark:text-brand-400 font-semibold text-sm">
+                                                        {{ reply.user.username|make_list|first|upper }}
+                                                    </span>
+                                                </div>
+                                                {% endif %}
+                                                <div class="ml-3">
+                                                    <div class="text-sm font-medium text-gray-800 dark:text-white">
+                                                        {{ reply.user.username }}
+                                                    </div>
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                        {{ reply.created_at|date:"F d, Y H:i" }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm text-gray-700 dark:text-gray-300">{{ reply.content }}</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-comments text-4xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                            <p class="text-gray-500 dark:text-gray-400">Be the first to comment</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const commentForm = document.getElementById('comment-form');
+    
+    if (commentForm) {
+        commentForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            submitButton.disabled = true;
+            
+            try {
+                const formData = new FormData(this);
+                const response = await fetch('{% url "blog:add_comment" post.id %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    addCommentToDOM(data);
+                    this.reset();
+                    showNotification('Comment posted successfully!', 'success');
+                }
+            } catch (error) {
+                showNotification('Failed to post comment', 'error');
+            } finally {
+                submitButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Post Comment';
+                submitButton.disabled = false;
+            }
+        });
+    }
+});
+
+function showReplyForm(commentId) {
+    const replyForm = document.createElement('form');
+    replyForm.className = 'mt-4 transform transition-all duration-300';
+    replyForm.innerHTML = `
+        <div class="relative bg-white dark:bg-gray-700 rounded-lg shadow-sm p-4">
+            <textarea name="content" 
+                      class="w-full p-3 border dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:text-white resize-none"
+                      placeholder="Write a reply..."
+                      rows="3"></textarea>
+            <input type="hidden" name="parent_id" value="${commentId}">
+            <div class="flex justify-end space-x-2 mt-2">
+                <button type="button" 
+                        onclick="this.closest('form').remove()"
+                        class="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors flex items-center">
+                    <i class="fas fa-reply mr-2"></i>Reply
+                </button>
+            </div>
+        </div>
+    `;
+    
+    const commentContainer = document.getElementById(`comment-${commentId}`);
+    const existingForm = commentContainer.querySelector('form');
+    
+    if (existingForm) {
+        existingForm.remove();
+    } else {
+        const repliesContainer = commentContainer.querySelector('.replies-container');
+        repliesContainer.prepend(replyForm);
+        
+        const textarea = replyForm.querySelector('textarea');
+        textarea.focus();
+        
+        replyForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            submitButton.disabled = true;
+            
+            await submitReply(this, commentId);
+        });
+    }
+}
+
+async function submitReply(form, commentId) {
+    try {
+        const formData = new FormData(form);
+        const response = await fetch('{% url "blog:add_comment" post.id %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            addReplyToDOM(data, commentId);
+            form.remove();
+            showNotification('Reply posted successfully!', 'success');
+        }
+    } catch (error) {
+        showNotification('Failed to post reply', 'error');
+    }
+}
+
+function addCommentToDOM(data) {
+    const commentHTML = `
+        <div class="comment-container mb-6 opacity-0 transform translate-y-4 transition-all duration-300" id="comment-${data.comment_id}">
+            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900 flex items-center justify-center">
+                            <span class="text-brand-600 dark:text-brand-400 font-semibold">
+                                ${data.user.charAt(0).toUpperCase()}
+                            </span>
+                        </div>
+                        <div class="ml-3">
+                            <div class="font-medium text-gray-800 dark:text-white">${data.user}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">${data.created_at}</div>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300">${data.content}</p>
+                <div class="mt-4 flex items-center space-x-4">
+                    <button onclick="showReplyForm(${data.comment_id})" 
+                            class="text-brand-500 text-sm hover:text-brand-600 transition-colors duration-200 flex items-center">
+                        <i class="fas fa-reply mr-2"></i>Reply
+                    </button>
+                </div>
+                <div class="replies-container mt-4 space-y-3 ml-6 pl-6 border-l-2 border-gray-200 dark:border-gray-600"></div>
+            </div>
+        </div>
+    `;
+    
+    const commentsContainer = document.getElementById('comments-list');
+    commentsContainer.insertAdjacentHTML('afterbegin', commentHTML);
+    
+    // Trigger animation
+    setTimeout(() => {
+        const newComment = document.getElementById(`comment-${data.comment_id}`);
+        newComment.classList.remove('opacity-0', 'translate-y-4');
+    }, 50);
+}
+
+function addReplyToDOM(data, commentId) {
+    const replyHTML = `
+        <div class="reply bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm opacity-0 transform translate-y-2 transition-all duration-300">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900 flex items-center justify-center">
+                        <span class="text-brand-600 dark:text-brand-400 font-semibold text-sm">
+                            ${data.user.charAt(0).toUpperCase()}
+                        </span>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm font-medium text-gray-800 dark:text-white">${data.user}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">${data.created_at}</div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-700 dark:text-gray-300">${data.content}</p>
+        </div>
+    `;
+    
+    const repliesContainer = document.querySelector(`#comment-${commentId} .replies-container`);
+    repliesContainer.insertAdjacentHTML('afterbegin', replyHTML);
+    
+    // Trigger animation
+    setTimeout(() => {
+        const newReply = repliesContainer.firstElementChild;
+        newReply.classList.remove('opacity-0', 'translate-y-2');
+    }, 50);
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } shadow-lg transform transition-all duration-300 translate-y-full z-50`;
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+    
+    requestAnimationFrame(() => {
+        notification.style.transform = 'translateY(0)';
+    });
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateY(100%)';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+</script>
+{% endblock %}
