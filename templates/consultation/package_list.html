@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-center" data-aos="fade-up" data-aos-duration="600">
+        Consultation Packages
+    </h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for package in packages %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-1 transition-all duration-200" 
+             data-aos="fade-up" 
+             data-aos-duration="600"
+             data-aos-delay="{{ forloop.counter0|divisibleby:3|yesno:'0,50,100' }}">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">{{ package.name }}</h2>
+                <p class="text-gray-600 mb-4 line-clamp-3">{{ package.description }}</p>
+                
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xl font-bold text-brand-500">₦{{ package.price }}</span>
+                    <div class="flex items-center text-gray-500">
+                        <i class="fas fa-clock mr-2"></i>
+                        <span>{{ package.duration }} minutes</span>
+                    </div>
+                </div>
+
+                <button onclick="initiateBooking({{ package.id }})" 
+                        class="w-full bg-brand-600 text-white py-3 rounded-lg hover:bg-brand-700 transition-colors duration-200 flex items-center justify-center">
+                    <i class="fas fa-calendar-check mr-2"></i>
+                    Book Now
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Booking Modal -->
+<div id="bookingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full m-4 transform transition-all duration-200">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Book Consultation</h2>
+        <form id="bookingForm" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-gray-700 dark:text-gray-300 mb-2">Date</label>
+                <input type="date" name="date" required 
+                       class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            </div>
+            <div>
+                <label class="block text-gray-700 dark:text-gray-300 mb-2">Time</label>
+                <input type="time" name="time" required 
+                       class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            </div>
+            <button type="submit" 
+                    class="w-full bg-brand-600 text-white py-3 rounded-lg hover:bg-brand-700 transition-colors duration-200 flex items-center justify-center">
+                <i class="fas fa-credit-card mr-2"></i>
+                Proceed to Payment
+            </button>
+            <button type="button" onclick="closeModal()" 
+                    class="w-full bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 py-3 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+                Cancel
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+let currentPackageId = null;
+
+function initiateBooking(packageId) {
+    currentPackageId = packageId;
+    const modal = document.getElementById('bookingModal');
+    modal.classList.remove('hidden');
+    modal.querySelector('.transform').classList.add('scale-100');
+    modal.querySelector('.transform').classList.remove('scale-95');
+}
+
+function closeModal() {
+    const modal = document.getElementById('bookingModal');
+    modal.querySelector('.transform').classList.add('scale-95');
+    modal.querySelector('.transform').classList.remove('scale-100');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 200);
+}
+
+document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch(`/consultation/book/${currentPackageId}/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.payment_url) {
+            window.location.href = data.payment_url;
+        }
+    } catch (error) {
+        console.error('Booking error:', error);
+    }
+});
+
+// Close modal when clicking outside
+document.getElementById('bookingModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+</script>
+{% endblock %}
