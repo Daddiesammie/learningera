@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+import os
 
 from pathlib import Path
 
@@ -150,8 +151,10 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Flutterwave Configuration
-FLW_PUBLIC_KEY = 'FLWPUBK_TEST-cc0921e64cab1182b09b1c1e96ed1691-X'
-FLW_SECRET_KEY = 'FLWSECK_TEST-a9e2518523e02fce5a21ec8c35967a9b-X'
-FLW_ENCRYPTION_KEY = 'FLWSECK_TEST11ddd8e2fd85'
+# Paystack Settings
+PAYSTACK_SECRET_KEY = 'sk_test_0675bc06ad9b0a5b8583bd7bc66e1b961a46a79e'
+PAYSTACK_PUBLIC_KEY = 'pk_test_8f6f19a2e525d04909e9a0bf02c9d6075c36988f'
+PAYSTACK_CALLBACK_URL = 'http://127.0.0.1:8000/users/dashboard/'
+
+
 

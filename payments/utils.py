@@ -1,60 +1,33 @@
-import json
-import requests
-import time
+import secrets
 from django.conf import settings
-from django.urls import reverse
-from django.contrib.sites.shortcuts import get_current_site
+import requests
 
-def initialize_payment(request, amount, email, payment_type, item_id):
-    current_site = get_current_site(request)
-    tx_ref = f"{payment_type}_{item_id}_{int(time.time())}"
-    
-    headers = {
-        "Authorization": f"Bearer {settings.FLW_SECRET_KEY}",
-        "Content-Type": "application/json",
-    }
-    
-    payload = {
-        "tx_ref": tx_ref,
-        "amount": str(amount),
-        "currency": "NGN",
-        "redirect_url": f"http://{current_site.domain}{reverse('payments:verify_payment')}",
-        "payment_options": "card",
-        "client": tx_ref,
-        "customer": {
+class PaystackPayment:
+    @staticmethod
+    def initialize_payment(email, amount, reference):
+        url = "https://api.paystack.co/transaction/initialize"
+        headers = {
+            "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+            "Content-Type": "application/json"
+        }
+        data = {
             "email": email,
-            "name": request.user.get_full_name() or request.user.username,
-            "phonenumber": "0903000000"
-        },
-        "customizations": {
-            "title": "Course Payment",
-            "description": "Payment for course enrollment",
-            "logo": "https://example.com/logo.png"
+            "amount": int(amount * 100),  # Convert to kobo
+            "reference": reference,
+            "callback_url": settings.PAYSTACK_CALLBACK_URL
         }
-    }
-    
-    print(f"Using Secret Key: {settings.FLW_SECRET_KEY[:10]}...")  # Print first 10 chars of key
-    print(f"Full Payload: {json.dumps(payload, indent=2)}")
-    
-    response = requests.post(
-        "https://api.flutterwave.com/v3/payments",
-        headers=headers,
-        json=payload
-    )
-    
-    print(f"Response Status: {response.status_code}")
-    print(f"Response Body: {response.text}")
-    
-    if response.status_code in [200, 201]:
-        response_data = response.json()
-        return {
-            'status': 'success',
-            'data': {
-                'link': response_data['data']['link']
-            }
+        
+        response = requests.post(url, headers=headers, json=data)
+        return response.json()
+
+    @staticmethod
+    def verify_payment(reference):
+        url = f"https://api.paystack.co/transaction/verify/{reference}"
+        headers = {
+            "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"
         }
-    
-    return {
-        "status": "error",
-        "message": "Payment initialization failed. Please check your payment details."
-    }
+        response = requests.get(url, headers=headers)
+        return response.json()
+
+def generate_payment_reference():
+    return f"PAY-{secrets.token_hex(8)}"

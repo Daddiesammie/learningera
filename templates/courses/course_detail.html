@@ -37,7 +37,12 @@
     </div>
 </div>
 
-<div class="container mx-auto px-4 -mt-16 relative z-10" id="course-container" data-course-id="{{ course.id }}">
+<div class="container mx-auto px-4 -mt-16 relative z-10" 
+    id="course-container" 
+    data-course-id="{{ course.id }}"
+    data-course-price="{{ course.price }}"
+    data-user-email="{{ request.user.email }}"
+    data-user-name="{{ request.user.get_full_name }}">
     <div class="max-w-4xl mx-auto">
         <!-- Course Overview Card -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden" data-aos="fade-up">
@@ -76,16 +81,23 @@
 
                 <div class="flex items-center justify-between mb-8">
                     <div class="flex items-center space-x-4">
-                        <span class="text-3xl font-bold text-brand-500">₦{{ course.price }}</span>
+                        <span class="text-3xl font-bold text-brand-500">${{ course.price }}</span>
                         {% if course.original_price %}
-                        <span class="text-lg text-gray-500 line-through">₦{{ course.original_price }}</span>
+                        <span class="text-lg text-gray-500 line-through">${{ course.original_price }}</span>
                         {% endif %}
                     </div>
-                    <button 
-                        onclick="makePayment()"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                        Enroll Now (₦{{ course.price }})
-                    </button>
+                    <form id="enrollmentForm" action="{% url 'courses:enroll_course' course.id %}" method="post">
+                        {% csrf_token %}
+                        <button 
+                            type="submit"
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                            data-course-id="{{ course.id }}"
+                            data-course-price="{{ course.price }}">
+                            Enroll Now (${{ course.price }})
+                        </button>
+                    </form>
+                    
+                    
                 </div>
 
 
@@ -155,40 +167,35 @@
     {% block extra_scripts %}
     <script>
         AOS.init();
-        
-        function makePayment() {
-            const timestamp = new Date().getTime(); 
-            FlutterwaveCheckout({
-                public_key: "{{ flw_public_key }}",
-                tx_ref: `course_{{ course.id }}_${timestamp}`,
-                amount: {{ course.price }},
-                currency: "NGN",
-                payment_options: "card,banktransfer,ussd",
-                redirect_url: "{% url 'payments:verify_payment' %}",
-                meta: {
-                    course_id: "{{ course.id }}",
-                    user_id: "{{ request.user.id }}"
-                },
-                customer: {
-                    email: "{{ request.user.email }}",
-                    phone_number: "090000000000",
-                    name: "{{ request.user.get_full_name|default:request.user.username }}"
-                },
-                callback: function(response) {
-                    if(response.status === "successful") {
-                        window.location.href = "{% url 'payments:verify_payment' %}?tx_ref=" + response.tx_ref + "&status=" + response.status;
-                    }
-                },
-                onclose: function() {
-                    // Optional: Handle modal close
-                },
-                customizations: {
-                    title: "{{ course.title }}",
-                    description: "Enrollment for {{ course.title }}",
-                    logo: "https://your-website.com/logo.png"
-                }
-            });
+
+        // Replace the existing enrollment button JavaScript with:
+
+        document.getElementById('enrollmentForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const courseId = this.querySelector('button').dataset.courseId;
+    const coursePrice = parseFloat(this.querySelector('button').dataset.coursePrice);
+    
+    if (coursePrice === 0) {
+        this.submit();
+    } else {
+        try {
+            const response = await fetch(`/payments/initialize/course/${courseId}/`);
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                // Redirect to Paystack checkout page
+                window.location.href = data.authorization_url;
+            } else {
+                throw new Error('Payment initialization failed');
+            }
+        } catch (error) {
+            console.error('Payment error:', error);
+            alert('Unable to process payment. Please try again.');
         }
+    }
+});
+
+
 
 
             function getCookie(name) {

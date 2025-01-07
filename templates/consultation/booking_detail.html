@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-gradient-to-r from-indigo-600 to-purple-600 min-h-[200px]">
+    <div class="container mx-auto px-4 py-8 sm:py-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-white">
+                <h1 class="text-2xl sm:text-3xl font-bold">Booking Details</h1>
+                <p class="text-indigo-100">View your consultation session information</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 -mt-10">
+    <div class="max-w-7xl mx-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+            <!-- Status Banner -->
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-indigo-100 dark:bg-indigo-900 p-3 rounded-full">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold
+                            {% if booking.status == 'confirmed' %}
+                                bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200
+                            {% elif booking.status == 'pending' %}
+                                bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200
+                            {% else %}
+                                bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200
+                            {% endif %}">
+                            {{ booking.status|title }}
+                        </span>
+                    </div>
+                </div>
+                <a href="{% url 'consultations:my_bookings' %}" 
+                   class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300">
+                    Back to Bookings
+                </a>
+            </div>
+
+            <!-- Session Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Package Information -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Package Information</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Package Name</p>
+                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ booking.package.name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Duration</p>
+                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ booking.package.duration }} minutes</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Price</p>
+                            <p class="font-medium text-gray-900 dark:text-gray-100">${{ booking.package.price }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Details -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Session Details</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Date</p>
+                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ booking.booking_date|date:"F d, Y" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Time</p>
+                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ booking.booking_time|time:"g:i A" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Booking Reference</p>
+                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ booking.reference_id }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meeting Link Section -->
+            {% if booking.meeting_link and booking.status == 'confirmed' %}
+            <div class="mt-6 bg-indigo-50 dark:bg-indigo-900/50 rounded-xl p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Meeting Information</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Click the button to join your session</p>
+                    </div>
+                    <a href="{{ booking.meeting_link }}" 
+                       target="_blank"
+                       class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200">
+                        Join Meeting
+                        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
