@@ -86,27 +86,31 @@ function closeModal() {
 
 document.getElementById('bookingForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
     const formData = new FormData(this);
     
     try {
-        const response = await fetch(`/consultation/book/${currentPackageId}/`, {
+        const response = await fetch(`/consultations/book/${currentPackageId}/`, {
             method: 'POST',
             body: formData,
             headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             }
         });
         
         const data = await response.json();
-        
-        if (data.payment_url) {
-            window.location.href = data.payment_url;
+        if (data.booking_id) {
+            const paymentResponse = await fetch(`/payments/initialize/consultation/${data.booking_id}/`);
+            const paymentData = await paymentResponse.json();
+            
+            if (paymentData.status === 'success') {
+                window.location.href = paymentData.authorization_url;
+            }
         }
     } catch (error) {
         console.error('Booking error:', error);
     }
 });
+
 
 // Close modal when clicking outside
 document.getElementById('bookingModal').addEventListener('click', function(e) {

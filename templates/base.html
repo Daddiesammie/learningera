@@ -193,8 +193,8 @@
                         </div>
                     </div>
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn-secondary">Sign In</a>
-                    <a href="{% url 'register' %}" class="btn-primary">Get Started</a>
+                    <a href="{% url 'users:login' %}" class="btn-secondary">Sign In</a>
+                    <a href="{% url 'users:register' %}" class="btn-primary">Get Started</a>
                 {% endif %}
             </div>
 
@@ -253,8 +253,8 @@
                                    </form>
                                {% else %}
                                    <div class="pt-4 flex space-x-4">
-                                       <a href="{% url 'login' %}" class="flex-1 btn-secondary text-center">Sign In</a>
-                                       <a href="{% url 'register' %}" class="flex-1 btn-primary text-center">Get Started</a>
+                                       <a href="{% url 'users:login' %}" class="flex-1 btn-secondary text-center">Sign In</a>
+                                       <a href="{% url 'users:register' %}" class="flex-1 btn-primary text-center">Get Started</a>
                                    </div>
                                {% endif %}
                            </div>
@@ -271,6 +271,9 @@
                <!-- Essential Scripts -->
                <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
                <script src="https://checkout.flutterwave.com/v3.js"></script>
+               <script>
+                const flutterwavePublicKey = "{{ flutterwave_public_key }}";
+            </script>
                
                {% block extra_scripts %}{% endblock %}
            </main>

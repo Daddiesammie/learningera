@@ -1,10 +1,12 @@
 import json
 from django.views.generic import ListView, DetailView
-from django.db.models import Q, Avg
+from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from .models import Course, CourseRating
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from .models import Course, CourseRating, Enrollment
 
 class CourseListView(ListView):
     model = Course
@@ -28,8 +30,6 @@ class CourseListView(ListView):
         context['search_query'] = self.request.GET.get('search', '')
         return context
 
-from django.conf import settings
-
 class CourseDetailView(DetailView):
     model = Course
     template_name = 'courses/course_detail.html'
@@ -42,14 +42,12 @@ class CourseDetailView(DetailView):
                 user=self.request.user,
                 course=self.object
             ).exists()
-        
-        # Add Flutterwave public key to context
-        context['flw_public_key'] = settings.FLW_PUBLIC_KEY
-        
+            context['is_enrolled'] = Enrollment.objects.filter(
+                user=self.request.user,
+                course=self.object,
+                paid=True
+            ).exists()
         return context
-
-
-
 
 @login_required
 @require_POST
@@ -67,7 +65,6 @@ def rate_course(request):
             defaults={'rating': rating_value}
         )
         
-        # Calculate fresh ratings
         return JsonResponse({
             'success': True,
             'average_rating': course.average_rating,
@@ -89,3 +86,26 @@ def rate_course(request):
             'success': False,
             'error': str(e)
         })
+
+@login_required
+def enroll_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    
+    # Check if the user is already enrolled
+    if Enrollment.objects.filter(user=request.user, course=course, paid=True).exists():
+        messages.info(request, 'You are already enrolled in this course.')
+        return redirect('courses:course_detail', slug=course.slug)
+    
+    if course.price > 0:
+        # Redirect to payment page for paid courses
+        return redirect('payments:payment_page', payment_type='course', item_id=course_id)
+    else:
+        # Enroll user in free courses
+        Enrollment.objects.create(user=request.user, course=course, paid=True)
+        messages.success(request, 'You have successfully enrolled in the course.')
+        return redirect('courses:course_detail', slug=course.slug)
+
+@login_required
+def my_courses(request):
+    enrollments = Enrollment.objects.filter(user=request.user, paid=True).select_related('course')
+    return render(request, 'courses/my_courses.html', {'enrollments': enrollments})
