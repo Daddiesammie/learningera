@@ -164,6 +164,7 @@ PAYSTACK_CALLBACK_URL = 'http://127.0.0.1:8000/users/dashboard/'
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+SITE_URL = 'http://localhost:8000'
 # Email settings
 ADMIN_EMAIL = 'your-admin@email.com'
 DEFAULT_FROM_EMAIL = 'your-site@email.com'

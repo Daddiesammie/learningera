@@ -13,6 +13,8 @@ class PackageListView(ListView):
 
 from django.http import JsonResponse
 
+from utils.emails import send_consultation_booking_email
+
 @login_required
 def book_consultation(request, package_id):
     if request.method == 'POST':
@@ -26,12 +28,16 @@ def book_consultation(request, package_id):
             status='pending'
         )
         
+        # Send booking confirmation email
+        send_consultation_booking_email(booking)
+        
         return JsonResponse({
             'booking_id': booking.id,
             'success': True
         })
     
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 
 @login_required

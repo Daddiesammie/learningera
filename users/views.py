@@ -1,4 +1,5 @@
 # users/views.py
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -15,6 +16,8 @@ from consultations.models import ConsultationBooking
 from payments.models import Payment
 from courses.models import Enrollment
 
+from utils.emails import send_welcome_email
+
 def register(request):
     if request.user.is_authenticated:
         return redirect('users:dashboard')
@@ -24,11 +27,14 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            # Send welcome email
+            send_welcome_email(user)
             messages.success(request, 'Account created successfully! Welcome aboard!')
             return redirect('users:dashboard')
     else:
         form = UserRegistrationForm()
     return render(request, 'users/register.html', {'form': form})
+
 
 @login_required(login_url='users:login')
 def dashboard(request):
@@ -94,16 +100,26 @@ def profile(request):
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
-            form.save()
+            # Handle profile image
+            if 'profile_image' in request.FILES:
+                user = form.save(commit=False)
+                user.profile_image = request.FILES['profile_image']
+                user.save()
+            else:
+                form.save()
+            
             messages.success(request, 'Profile updated successfully!')
             return redirect('users:profile')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = UserProfileForm(instance=request.user)
     
-    context = {
+    return render(request, 'users/profile.html', {
         'form': form,
-    }
-    return render(request, 'users/profile.html', context)
+        'user': request.user
+    })
+
 
 def public_profile(request, slug):
     user = get_object_or_404(CustomUser, slug=slug)

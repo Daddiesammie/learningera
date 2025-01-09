@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from .models import Course, CourseRating, Enrollment
+from utils.emails import send_course_enrollment_email
 
 class CourseListView(ListView):
     model = Course
@@ -91,17 +92,16 @@ def rate_course(request):
 def enroll_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     
-    # Check if the user is already enrolled
     if Enrollment.objects.filter(user=request.user, course=course, paid=True).exists():
         messages.info(request, 'You are already enrolled in this course.')
         return redirect('courses:course_detail', slug=course.slug)
     
     if course.price > 0:
-        # Redirect to payment page for paid courses
         return redirect('payments:payment_page', payment_type='course', item_id=course_id)
     else:
-        # Enroll user in free courses
         Enrollment.objects.create(user=request.user, course=course, paid=True)
+        # Send enrollment confirmation email
+        send_course_enrollment_email(request.user, course)
         messages.success(request, 'You have successfully enrolled in the course.')
         return redirect('courses:course_detail', slug=course.slug)
 
