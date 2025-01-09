@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %} 
 {% block content %}
 <!-- Hero Section -->
 <div class="relative overflow-hidden bg-gradient-to-r from-gray-900 to-brand-900 text-white">
@@ -154,10 +155,151 @@
 </div>
 
 <!-- Testimonials Section -->
-<div class="py-20">
+<div class="py-20 bg-gray-50">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-16">Success Stories</h2>
-        <!-- Add testimonials carousel/grid here -->
+        <div class="text-center mb-16" data-aos="fade-up">
+            <h2 class="text-3xl font-bold mb-4">Success Stories</h2>
+            <p class="text-gray-600">What our students say about their journey</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for testimonial in testimonials %}
+            <div class="bg-white rounded-xl shadow-lg p-6 transform hover:-translate-y-1 transition duration-300" data-aos="fade-up" data-aos-delay="{{ forloop.counter|multiply:100 }}">
+                <!-- Rating Stars -->
+                <div class="flex mb-4">
+                    {% for i in "12345"|make_list %}
+                    <svg class="h-5 w-5 {% if forloop.counter <= testimonial.rating %}text-yellow-400{% else %}text-gray-300{% endif %}"
+                         fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                    {% endfor %}
+                </div>
+
+                <!-- Testimonial Content -->
+                <p class="text-gray-600 mb-6">{{ testimonial.content|truncatechars:150 }}</p>
+
+                <!-- User Info -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        {% if testimonial.user.profile_image %}
+                            <img src="{{ testimonial.user.profile_image.url }}" alt="" class="h-10 w-10 rounded-full">
+                        {% else %}
+                            <div class="h-10 w-10 rounded-full bg-brand-100 flex items-center justify-center">
+                                <span class="text-lg font-bold text-brand-600">
+                                    {{ testimonial.user.username|make_list|first|upper }}
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="text-sm font-medium text-gray-900">{{ testimonial.user.get_full_name }}</h4>
+                        <p class="text-sm text-gray-500">{{ testimonial.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <p class="text-gray-500">No testimonials yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-12">
+            <a href="{% url 'testimonials:submit_testimonial' %}" 
+               class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-brand-600 hover:bg-brand-700 transition duration-300">
+                Leave a Review
+                <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+            </a>
+        </div>        
     </div>
 </div>
+
+
+<section class="py-16 bg-gray-50 dark:bg-gray-800" id="faq">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- FAQ Header -->
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4 dark:text-white">Frequently Asked Questions</h2>
+                <p class="text-gray-600 dark:text-gray-300">Get quick answers to common questions about our programs and services</p>
+            </div>
+
+            <!-- FAQ Accordion -->
+            <div class="space-y-4">
+                <!-- FAQ Item 1 -->
+                <div class="border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <button class="w-full flex justify-between items-center p-4 hover:bg-gray-100 dark:hover:bg-gray-700" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-left dark:text-white">What programs do you offer?</span>
+                        <svg class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="hidden p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+                        <p class="text-gray-600 dark:text-gray-300">We offer three main programs: Sales & Marketing Mastery Mentorship, Affiliate Success Blueprint, and our comprehensive WhatsApp Sales Ebook. Each program is designed to help you master different aspects of digital sales and marketing.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <button class="w-full flex justify-between items-center p-4 hover:bg-gray-100 dark:hover:bg-gray-700" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-left dark:text-white">How long does the consultation session last?</span>
+                        <svg class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="hidden p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+                        <p class="text-gray-600 dark:text-gray-300">Our consultation sessions typically last 60 minutes, providing ample time to discuss your business goals, challenges, and create a customized action plan for your success.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <button class="w-full flex justify-between items-center p-4 hover:bg-gray-100 dark:hover:bg-gray-700" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-left dark:text-white">Do you offer refunds?</span>
+                        <svg class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="hidden p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+                        <p class="text-gray-600 dark:text-gray-300">Yes, we offer a 7-day money-back guarantee for our digital products if you're not satisfied with the content. Consultation sessions must be rescheduled 24 hours in advance.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <button class="w-full flex justify-between items-center p-4 hover:bg-gray-100 dark:hover:bg-gray-700" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-left dark:text-white">How do I access the course materials?</span>
+                        <svg class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="hidden p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+                        <p class="text-gray-600 dark:text-gray-300">After purchase, you'll receive login credentials to our learning platform where you can access all course materials, videos, and resources. Content is available 24/7 from any device.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function toggleFaq(button) {
+    const content = button.nextElementSibling;
+    const icon = button.querySelector('svg');
+    
+    // Toggle content
+    content.classList.toggle('hidden');
+    
+    // Rotate icon
+    if (content.classList.contains('hidden')) {
+        icon.classList.remove('rotate-180');
+    } else {
+        icon.classList.add('rotate-180');
+    }
+}
+</script>
+
+
 {% endblock %}

@@ -75,17 +75,17 @@ def rate_course(request):
         return JsonResponse({
             'success': False,
             'error': 'Course not found'
-        })
+        }, status=404)
     except (ValueError, json.JSONDecodeError):
         return JsonResponse({
             'success': False,
             'error': 'Invalid rating data'
-        })
+        }, status=400)
     except Exception as e:
         return JsonResponse({
             'success': False,
             'error': str(e)
-        })
+        }, status=500)
 
 @login_required
 def enroll_course(request, course_id):

@@ -1,22 +1,69 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-6">Register</h2>
-    <form method="post" class="space-y-4">
-        {% csrf_token %}
-        {% for field in form %}
-        <div>
-            <label class="block text-gray-700">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-            <span class="text-red-500 text-sm">{{ field.errors|join:", " }}</span>
-            {% endif %}
+<style>
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+    .input-focus-effect {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    .input-focus-effect::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #6366f1;
+        transition: width 0.3s ease-in-out;
+    }
+    .input-focus-effect:focus-within::after {
+        width: 100%;
+    }
+</style>
+
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div class="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105">
+        <h2 class="text-3xl font-bold mb-6 text-center gradient-text animate-float">Register</h2>
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="input-focus-effect">
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {{ field.label }}
+                    </label>
+                    <input type="{{ field.field.widget.input_type }}"
+                           name="{{ field.name }}"
+                           id="{{ field.id_for_label }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all duration-300 ease-in-out transform hover:translate-x-1"
+                           placeholder="{{ field.label }}"
+                           {% if field.field.required %}required{% endif %}
+                    >
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="w-full btn-primary transform transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+                Register
+            </button>
+        </form>
+        <div class="mt-6 text-center">
+            <p class="text-gray-600 dark:text-gray-400">Already have an account?</p>
+            <a href="{% url 'users:login' %}" class="text-brand-500 hover:text-brand-600 font-medium transition-colors duration-300 hover:underline">
+                Sign in here
+            </a>
         </div>
-        {% endfor %}
-        <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-            Register
-        </button>
-    </form>
+    </div>
 </div>
 {% endblock %}

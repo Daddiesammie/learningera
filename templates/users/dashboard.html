@@ -37,7 +37,7 @@
     </div>
 </div>
 
-<div class="container mx-auto px-4 -mt-10">
+<div class="container mx-auto px-4 py-5 -mt-10">
     <div class="max-w-7xl mx-auto">
         <!-- Quick Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -105,8 +105,8 @@
         <!-- Analytics Section -->
         <div class="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-8">      
             <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Consultation Trends</h2>
-                <div id="consultationChart" class="w-full h-64"></div>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Course Purchase Trends</h2>
+                <div id="courseChart" class="w-full h-64"></div>
             </div>
         </div>
 
@@ -313,10 +313,9 @@
 
     function drawChart() {
         var data = google.visualization.arrayToDataTable([
-            ['Month', 'Sessions'],
-            {% for i in consultation_months|length|make_list %}
-                ['{{ consultation_months|get_item:forloop.counter0 }}', 
-                 {{ monthly_consultations|get_item:forloop.counter0 }}],
+            ['Month', 'Courses Purchased'],
+            {% for item in monthly_data %}
+                ['{{ item.month }}', {{ item.count }}],
             {% endfor %}
         ]);
 
@@ -325,11 +324,23 @@
             legend: { position: 'none' },
             colors: ['#4F46E5'],
             chartArea: {width: '85%', height: '80%'},
-            vAxis: { minValue: 0, gridlines: { count: 4 } },
-            hAxis: { gridlines: { color: 'transparent' } }
+            vAxis: { 
+                minValue: 0, 
+                gridlines: { count: 4 },
+                title: 'Number of Courses'
+            },
+            hAxis: { 
+                gridlines: { color: 'transparent' },
+                title: 'Month'
+            },
+            animation: {
+                startup: true,
+                duration: 1000,
+                easing: 'out'
+            }
         };
 
-        var chart = new google.visualization.LineChart(document.getElementById('consultationChart'));
+        var chart = new google.visualization.LineChart(document.getElementById('courseChart'));
         chart.draw(data, options);
     }
 

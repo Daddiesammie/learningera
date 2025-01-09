@@ -4,7 +4,8 @@
 <!-- Hero Banner -->
 <div class="bg-gradient-to-r from-brand-900 to-brand-700 text-white">
     <div class="container mx-auto px-4 py-16">
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-6xl mx-auto">
+            <!-- Breadcrumb -->
             <nav class="flex mb-8" aria-label="Breadcrumb" data-aos="fade-up">
                 <ol class="flex items-center space-x-2">
                     <li><a href="{% url 'courses:course_list' %}" class="hover:text-brand-200">Courses</a></li>
@@ -15,11 +16,13 @@
                 </ol>
             </nav>
             
-            <h1 class="text-4xl md:text-5xl font-bold mb-4" data-aos="fade-up">
+            <!-- Course Title -->
+            <h1 class="text-4xl md:text-5xl font-bold mb-6" data-aos="fade-up">
                 {{ course.title }}
             </h1>
             
-            <div class="flex items-center space-x-6" data-aos="fade-up">
+            <!-- Course Meta Info -->
+            <div class="flex flex-wrap items-center gap-6 text-sm md:text-base" data-aos="fade-up">
                 <div class="flex items-center space-x-2">
                     <i class="fas fa-clock"></i>
                     <span>{{ course.duration }}</span>
@@ -37,258 +40,303 @@
     </div>
 </div>
 
+<!-- Main Content -->
 <div class="container mx-auto px-4 -mt-16 relative z-10" 
     id="course-container" 
     data-course-id="{{ course.id }}"
     data-course-price="{{ course.price }}"
     data-user-email="{{ request.user.email }}"
     data-user-name="{{ request.user.get_full_name }}">
-    <div class="max-w-4xl mx-auto">
-        <!-- Course Overview Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden" data-aos="fade-up">
-            <!-- Course Preview Image -->
-            <div class="relative h-64 overflow-hidden">
-                <img src="{{ course.course_image.url|default:'https://via.placeholder.com/400x300' }}" 
-                    alt="{{ course.title }}"
-                    class="w-full h-full object-cover">
-
-                {% if course.is_published %}
+    
+    <!-- Two Column Layout for larger screens -->
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left Column - Course Details -->
+        <div class="lg:col-span-2">
+            <!-- Course Overview Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden" data-aos="fade-up">
+                <!-- Course Preview Image -->
+                <div class="relative h-[400px] overflow-hidden">
+                    <img src="{{ course.course_image.url|default:'https://via.placeholder.com/400x300' }}" 
+                        alt="{{ course.title }}"
+                        class="w-full h-full object-cover">
+                    
+                    {% if course.is_published %}
                     <div class="absolute top-4 right-4">
                         <span class="bg-green-500 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg">
                             Active Course
                         </span>
                     </div>
-                {% endif %}
-            </div>
-
-            <div class="p-8">
-                <!-- Rating System -->
-                <div class="flex items-center mb-6">
-                    <div class="flex items-center" id="rating-stars">
-                        {% for i in "12345" %}
-                        <svg class="w-8 h-8 {% if has_rated %}text-yellow-400{% else %}text-gray-300{% endif %} cursor-pointer hover:text-yellow-400 transition-colors duration-200"
-                            data-rating="{{ i }}"
-                            fill="currentColor"
-                            viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                        {% endfor %}
-                        <span class="ml-3 text-lg text-gray-600 dark:text-gray-300" id="rating-count">
-                            ({{ course.ratings.count }} ratings)
-                        </span>
-                    </div>
+                    {% endif %}
                 </div>
 
-                <div class="flex items-center justify-between mb-8">
-                    <div class="flex items-center space-x-4">
+                <div class="p-8">
+                    <!-- Rating System -->
+                    <div class="flex items-center mb-6">
+                        <div class="flex items-center" id="rating-stars">
+                            {% for i in "12345" %}
+                            <svg class="w-6 h-6 md:w-8 md:h-8 {% if has_rated %}text-yellow-400{% else %}text-gray-300{% endif %} cursor-pointer hover:text-yellow-400 transition-colors duration-200"
+                                data-rating="{{ i }}"
+                                fill="currentColor"
+                                viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            {% endfor %}
+                            <span class="ml-3 text-lg text-gray-600 dark:text-gray-300" id="rating-count">
+                                ({{ course.ratings.count }} ratings)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Course Description -->
+                    <div class="prose max-w-none dark:prose-invert mb-8">
+                        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">About This Course</h2>
+                        <p class="text-gray-600 dark:text-gray-300">{{ course.description }}</p>
+                    </div>
+
+                    <!-- Course Features Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-gray-200 dark:border-gray-700 pt-6">
+                        <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                            <i class="fas fa-calendar-alt text-brand-500 text-xl mb-2"></i>
+                            <span class="block text-sm text-gray-500 dark:text-gray-400">Created</span>
+                            <span class="font-semibold text-gray-800 dark:text-white">{{ course.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                            <i class="fas fa-clock text-brand-500 text-xl mb-2"></i>
+                            <span class="block text-sm text-gray-500 dark:text-gray-400">Duration</span>
+                            <span class="font-semibold text-gray-800 dark:text-white">{{ course.duration }}</span>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                            <i class="fas fa-signal text-brand-500 text-xl mb-2"></i>
+                            <span class="block text-sm text-gray-500 dark:text-gray-400">Level</span>
+                            <span class="font-semibold text-gray-800 dark:text-white">{{ course.get_level_display }}</span>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                            <i class="fas fa-certificate text-brand-500 text-xl mb-2"></i>
+                            <span class="block text-sm text-gray-500 dark:text-gray-400">Certificate</span>
+                            <span class="font-semibold text-gray-800 dark:text-white">Included</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Content Section -->
+            <div class="mt-8" data-aos="fade-up">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Course Content</h2>
+                    <div class="space-y-4">
+                        {% if course.modules.all %}
+                            {% for module in course.modules.all %}
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 hover:shadow-md transition-shadow duration-200">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-semibold text-gray-800 dark:text-white">{{ module.title }}</h3>
+                                    <span class="text-brand-500">
+                                        <i class="fas fa-play-circle"></i>
+                                    </span>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-300 mt-2">{{ module.description }}</p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 text-center">
+                                <i class="fas fa-book-open text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
+                                <p class="text-gray-600 dark:text-gray-300">Course content will be available soon.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Pricing and Enrollment -->
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sticky top-4" data-aos="fade-up">
+                <div class="mb-6">
+                    <div class="flex items-center gap-3 mb-4">
                         <span class="text-3xl font-bold text-brand-500">${{ course.price }}</span>
                         {% if course.original_price %}
                         <span class="text-lg text-gray-500 line-through">${{ course.original_price }}</span>
                         {% endif %}
                     </div>
-                    <form id="enrollmentForm" action="{% url 'courses:enroll_course' course.id %}" method="post">
+                    
+                    <form id="enrollmentForm" action="{% url 'courses:enroll_course' course.id %}" method="post" class="mb-4">
                         {% csrf_token %}
                         <button 
                             type="submit"
-                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                            class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold text-lg"
                             data-course-id="{{ course.id }}"
                             data-course-price="{{ course.price }}">
-                            Enroll Now (${{ course.price }})
+                            Enroll Now
                         </button>
                     </form>
                     
-                    
-                </div>
-
-
-                <!-- Course Description -->
-                <div class="prose max-w-none dark:prose-invert mb-8">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">About This Course</h2>
-                    <p class="text-gray-600 dark:text-gray-300">{{ course.description }}</p>
-                </div>
-
-                <!-- Course Features -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-gray-200 dark:border-gray-700 pt-6">
-                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                        <i class="fas fa-calendar-alt text-brand-500 text-xl mb-2"></i>
-                        <span class="block text-sm text-gray-500 dark:text-gray-400">Created</span>
-                        <span class="font-semibold text-gray-800 dark:text-white">{{ course.created_at|date:"M d, Y" }}</span>
-                    </div>
-                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                        <i class="fas fa-clock text-brand-500 text-xl mb-2"></i>
-                        <span class="block text-sm text-gray-500 dark:text-gray-400">Duration</span>
-                        <span class="font-semibold text-gray-800 dark:text-white">{{ course.duration }}</span>
-                    </div>
-                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                        <i class="fas fa-signal text-brand-500 text-xl mb-2"></i>
-                        <span class="block text-sm text-gray-500 dark:text-gray-400">Level</span>
-                        <span class="font-semibold text-gray-800 dark:text-white">{{ course.get_level_display }}</span>
-                    </div>
-                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                        <i class="fas fa-certificate text-brand-500 text-xl mb-2"></i>
-                        <span class="block text-sm text-gray-500 dark:text-gray-400">Certificate</span>
-                        <span class="font-semibold text-gray-800 dark:text-white">Included</span>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Want to pay in other currencies?</p>
+                        <a href="https://wa.me/{{ site_setting.phone }}" 
+                           target="_blank" 
+                           class="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center justify-center font-semibold">
+                            <i class="fab fa-whatsapp mr-2 text-xl"></i>
+                            Contact Support
+                        </a>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Course Content -->
-        <div class="mt-8" data-aos="fade-up">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-                <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Course Content</h2>
-                <div class="space-y-4">
-                    {% if course.modules.all %}
-                        {% for module in course.modules.all %}
-                        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 hover:shadow-md transition-shadow duration-200">
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-semibold text-gray-800 dark:text-white">{{ module.title }}</h3>
-                                <span class="text-brand-500">
-                                    <i class="fas fa-play-circle"></i>
-                                </span>
-                            </div>
-                            <p class="text-gray-600 dark:text-gray-300 mt-2">{{ module.description }}</p>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 text-center">
-                            <i class="fas fa-book-open text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
-                            <p class="text-gray-600 dark:text-gray-300">Course content will be available soon.</p>
-                        </div>
-                    {% endif %}
+                <!-- What You'll Get Section -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">What You'll Get</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center text-gray-600 dark:text-gray-300">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            Full lifetime access
+                        </li>
+                        <li class="flex items-center text-gray-600 dark:text-gray-300">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            Access on mobile and desktop
+                        </li>
+                        <li class="flex items-center text-gray-600 dark:text-gray-300">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            Certificate of completion
+                        </li>
+                        <li class="flex items-center text-gray-600 dark:text-gray-300">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            Premium support
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
     {% endblock %}
 
 
     {% block extra_scripts %}
     <script>
         AOS.init();
-
-        // Replace the existing enrollment button JavaScript with:
-
-        document.getElementById('enrollmentForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const courseId = this.querySelector('button').dataset.courseId;
-    const coursePrice = parseFloat(this.querySelector('button').dataset.coursePrice);
     
-    if (coursePrice === 0) {
-        this.submit();
-    } else {
-        try {
-            const response = await fetch(`/payments/initialize/course/${courseId}/`);
-            const data = await response.json();
+        document.getElementById('enrollmentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const courseId = this.querySelector('button').dataset.courseId;
+            const coursePrice = parseFloat(this.querySelector('button').dataset.coursePrice);
             
-            if (data.status === 'success') {
-                // Redirect to Paystack checkout page
-                window.location.href = data.authorization_url;
+            if (coursePrice === 0) {
+                this.submit();
             } else {
-                throw new Error('Payment initialization failed');
+                try {
+                    const response = await fetch(`/payments/initialize/course/${courseId}/`);
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        window.location.href = data.authorization_url;
+                    } else {
+                        throw new Error('Payment initialization failed');
+                    }
+                } catch (error) {
+                    console.error('Payment error:', error);
+                    alert('Unable to process payment. Please try again.');
+                }
             }
-        } catch (error) {
-            console.error('Payment error:', error);
-            alert('Unable to process payment. Please try again.');
-        }
-    }
-});
-
-
-
-
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
+        });
+    
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
                     }
                 }
-                return cookieValue;
             }
+            return cookieValue;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const ratingStars = document.querySelectorAll('#rating-stars svg');
+            const courseContainer = document.querySelector('#course-container');
+            const courseId = courseContainer.dataset.courseId;
+            const isAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
             
-            document.addEventListener('DOMContentLoaded', function() {
-                const ratingStars = document.querySelectorAll('#rating-stars svg');
-                const courseId = document.querySelector('#course-container').dataset.courseId;
-                const isAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};  // Add this line
-                
-                ratingStars.forEach((star, index) => {
-                    star.addEventListener('click', async () => {
-                        if (!isAuthenticated) {  // Change this line
-                            window.location.href = '{% url "users:login" %}';
-                            return;
-                        }
+            ratingStars.forEach((star, index) => {
+                star.addEventListener('click', async () => {
+                    if (!isAuthenticated) {
+                        window.location.href = '{% url "users:login" %}';
+                        return;
+                    }
+    
+                    try {
+                        const response = await fetch('{% url "courses:rate_course" %}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: JSON.stringify({
+                                rating: index + 1,
+                                course_id: courseId
+                            })
+                        });
 
-                        try {
-                            const response = await fetch('{% url "courses:rate_course" %}', {  // Update URL
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRFToken': getCookie('csrftoken')
-                                },
-                                body: JSON.stringify({
-                                    rating: index + 1,
-                                    course_id: courseId
-                                })
-                            });
-
-                            const data = await response.json();
-                            
-                            if (data.success) {
-                                updateStarDisplay(data.average_rating);
-                                document.querySelector('#course-container').dataset.currentRating = data.average_rating;
-                                document.querySelector('#rating-count').textContent = `(${data.rating_count} ratings)`;
-                                showFeedback('Rating updated successfully!', 'success');
-                            } else {
-                                throw new Error(data.error || 'Rating failed');
-                            }
-                        } catch (error) {
-                            showFeedback(error.message || 'Rating update failed. Please try again.', 'error');
+    
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
                         }
-                    });
+    
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            updateStarDisplay(data.average_rating);
+                            courseContainer.dataset.currentRating = data.average_rating;
+                            document.querySelector('#rating-count').textContent = `(${data.rating_count} ratings)`;
+                            showFeedback('Rating updated successfully!', 'success');
+                        } else {
+                            throw new Error(data.error || 'Rating failed');
+                        }
+                    } catch (error) {
+                        console.error('Rating error:', error);
+                        showFeedback(error.message || 'Rating update failed. Please try again.', 'error');
+                    }
                 });
             });
+        });
+        
+        function highlightStars(index) {
+            const stars = document.querySelectorAll('#rating-stars svg');
+            stars.forEach((star, i) => {
+                star.classList.toggle('text-yellow-400', i <= index);
+                star.classList.toggle('text-gray-300', i > index);
+            });
+        }
+        
+        function resetStars() {
+            const currentRating = document.querySelector('#course-container').dataset.currentRating || 0;
+            updateStarDisplay(currentRating);
+        }
+        
+        function updateStarDisplay(rating) {
+            const stars = document.querySelectorAll('#rating-stars svg');
+            stars.forEach((star, index) => {
+                star.classList.toggle('text-yellow-400', index < rating);
+                star.classList.toggle('text-gray-300', index >= rating);
+            });
+        }
+        
+        function showFeedback(message, type) {
+            const feedback = document.createElement('span');
+            feedback.textContent = message;
+            feedback.className = `ml-2 text-sm animate-fade-in ${type === 'success' ? 'text-green-500' : 'text-red-500'}`;
+            const container = document.querySelector('#rating-stars').parentNode;
             
-            function highlightStars(index) {
-                const stars = document.querySelectorAll('#rating-stars svg');
-                stars.forEach((star, i) => {
-                    star.classList.toggle('text-yellow-400', i <= index);
-                    star.classList.toggle('text-gray-300', i > index);
-                });
+            const existingFeedback = container.querySelector('.animate-fade-in');
+            if (existingFeedback) {
+                existingFeedback.remove();
             }
             
-            function resetStars() {
-                const currentRating = document.querySelector('#course-container').dataset.currentRating || 0;
-                updateStarDisplay(currentRating);
-            }
-            
-            function updateStarDisplay(rating) {
-                const stars = document.querySelectorAll('#rating-stars svg');
-                stars.forEach((star, index) => {
-                    star.classList.toggle('text-yellow-400', index < rating);
-                    star.classList.toggle('text-gray-300', index >= rating);
-                });
-            }
-            
-            function showFeedback(message, type) {
-                const feedback = document.createElement('span');
-                feedback.textContent = message;
-                feedback.className = `ml-2 text-sm animate-fade-in ${type === 'success' ? 'text-green-500' : 'text-red-500'}`;
-                const container = document.querySelector('#rating-stars').parentNode;
-                
-                const existingFeedback = container.querySelector('.animate-fade-in');
-                if (existingFeedback) {
-                    existingFeedback.remove();
-                }
-                
-                container.appendChild(feedback);
-                setTimeout(() => feedback.remove(), 2000);
-            }
-            </script>
+            container.appendChild(feedback);
+            setTimeout(() => feedback.remove(), 2000);
+        }
+    </script>
 {% endblock %}

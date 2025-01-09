@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_admin_kubi',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +46,10 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
     'consultations',
     'settings.apps.SettingsConfig',
+    'testimonials.apps.TestimonialsConfig',
+    'contact',
+    'newsletter',
+
 ]
 
 MEDIA_URL = '/media/'
@@ -90,6 +95,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'settings.context_processors.site_settings',
+                'newsletter.context_processors.newsletter_form',
             ],
         },
     },
@@ -157,4 +163,10 @@ PAYSTACK_PUBLIC_KEY = 'pk_test_8f6f19a2e525d04909e9a0bf02c9d6075c36988f'
 PAYSTACK_CALLBACK_URL = 'http://127.0.0.1:8000/users/dashboard/'
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email settings
+ADMIN_EMAIL = 'your-admin@email.com'
+DEFAULT_FROM_EMAIL = 'your-site@email.com'
 
+
+LOGIN_REDIRECT_URL = 'users:dashboard'

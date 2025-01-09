@@ -136,10 +136,10 @@
                     <!-- Desktop Navigation -->
                     <div class="hidden md:flex md:items-center md:space-x-8">
                         <a href="{% url 'courses:course_list' %}" class="nav-link">Courses</a>
-                        <a href="{% url 'consultations:package_list' %}" class="nav-link">Consulting</a>
+                        <a href="{% url 'consultations:package_list' %}" class="nav-link">Consultations</a>
                         <a href="{% url 'blog:post_list' %}" class="nav-link">Blog</a>
                         <a href="/about" class="nav-link">About</a>
-                        <a href="/contact" class="nav-link">Contact</a>
+                        <a href="{% url 'contact:contact' %}" class="nav-link">Contact</a>
     
                         <!-- Dark Mode Toggle -->
                         <button @click="toggleDarkMode()" 
@@ -229,10 +229,10 @@
                             class="absolute top-full left-0 right-0 md:hidden bg-white dark:bg-gray-800 shadow-lg">
                            <div class="px-4 pt-2 pb-3 space-y-1">
                                <a href="{% url 'courses:course_list' %}" class="block nav-link">Courses</a>
-                               <a href="{% url 'consultations:package_list' %}" class="block nav-link">Consulting</a>
+                               <a href="{% url 'consultations:package_list' %}" class="block nav-link">Consultations</a>
                                <a href="{% url 'blog:post_list' %}" class="block nav-link">Blog</a>
                                <a href="/about" class="block nav-link">About</a>
-                               <a href="/contact" class="block nav-link">Contact</a>
+                               <a href="{% url 'contact:contact' %}" class="block nav-link">Contact</a>
                                
                                {% if user.is_authenticated %}
                                    <hr class="my-2 border-gray-200 dark:border-gray-700">
@@ -300,8 +300,7 @@
                     <h4 class="font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
                         <li><a href="{% url 'courses:course_list' %}" class="hover:text-brand-500">Courses</a></li>
-                        <li><a href="/consulting" class="hover:text-brand-500">Consulting</a></li>
-                        <li><a href="/resources" class="hover:text-brand-500">Resources</a></li>
+                        <li><a href="/consulting" class="hover:text-brand-500">Consultations</a></li>
                         <li><a href="/blog" class="hover:text-brand-500">Blog</a></li>
                     </ul>
                 </div>
@@ -310,24 +309,23 @@
                 <div>
                     <h4 class="font-semibold mb-4">Support</h4>
                     <ul class="space-y-2">
-                        <li><a href="/contact" class="hover:text-brand-500">Contact Us</a></li>
+                        <li><a href="{% url 'contact:contact' %}" class="hover:text-brand-500">Contact Us</a></li>
                         <li><a href="/faq" class="hover:text-brand-500">FAQ</a></li>
-                        <li><a href="/privacy" class="hover:text-brand-500">Privacy Policy</a></li>
-                        <li><a href="/terms" class="hover:text-brand-500">Terms of Service</a></li>
+                        <li><a href="{% url 'privacy' %}" class="hover:text-brand-500">Privacy Policy</a></li>
+                        <li><a href="{% url 'terms' %}" class="hover:text-brand-500">Terms of Service</a></li>
                     </ul>
                 </div>
 
                 <!-- Newsletter -->
                 <div>
                     <h4 class="font-semibold mb-4">Stay Updated</h4>
-                    <form class="space-y-4">
-                        <input type="email" 
-                               placeholder="Enter your email" 
-                               class="w-full px-4 py-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600">
+                    <form method="POST" action="{% url 'newsletter:subscribe' %}" class="space-y-4">
+                        {% csrf_token %}
+                        {{ subscribe_form.email }}
                         <button type="submit" class="btn-primary w-full">Subscribe</button>
                     </form>
                 </div>
-            </div>
+                
 
             <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
                 <p>&copy; 2024 SalesElite Pro. All rights reserved.</p>

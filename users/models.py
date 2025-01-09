@@ -1,6 +1,8 @@
+# users/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
+from django.urls import reverse
 import uuid
 
 class CustomUser(AbstractUser):
@@ -17,5 +19,6 @@ class CustomUser(AbstractUser):
         if not self.slug:
             self.slug = slugify(f"{self.username}-{str(uuid.uuid4())[:8]}")
         super().save(*args, **kwargs)
-
-
+    
+    def get_absolute_url(self):
+        return reverse('users:public_profile', kwargs={'slug': self.slug})
